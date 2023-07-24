@@ -1,0 +1,3 @@
+class RealmRepository implements DataRepository {
+
+}
