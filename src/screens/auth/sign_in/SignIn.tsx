@@ -1,25 +1,19 @@
-import { Image, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { Component, PropsWithoutRef, ReactNode, forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import React, { PropsWithoutRef, forwardRef, useCallback, useImperativeHandle, useMemo, useReducer, useRef, useState } from 'react';
+import { Image, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { colors } from '../../../theme';
-import styles from '../../../theme/styles';
-import config from '../../../config';
 import images from '../../../theme/images';
+import styles from '../../../theme/styles';
 // import { authState, requestLogin } from '../../../redux/slices/counterSlice';
-import { useAppDispatch, useAppSelector } from '../../../redux/hook';
-import { AppState } from '../../../redux/store';
-import { Reactotron } from '../../../devtools/ReactotronClient';
-import { requestLogin, authState } from '../../../redux/slices/auth';
 import { unwrapResult } from '@reduxjs/toolkit';
-
-type AuthInputType = "account" | "password";
+import { useAppDispatch, useAppSelector } from '../../../redux/hook';
+import { authState, requestLogin } from '../../../redux/slices/auth';
+import { signInReducer, initState, showModal, SignInMode, changeSignInMode } from './Logic';
+import { LoginModal } from '../components/LoginModal';
 export const SignInScreen = () => {
     // const authReducer = useAppSelector(authState);
-    const count = useAppSelector((state: AppState) => state.counter.value)
-    const userState = useAppSelector(authState)
-
+    const userState = useAppSelector(authState);
+    const [uiState, uiLogic] = useReducer(signInReducer, initState);
     const dispatch = useAppDispatch();
-    const accountInputRef = useRef<AuthInputRef>(null);
-    const passwordInputRef = useRef<AuthInputRef>(null);
     console.log("render SignInScreen");
     const handleSignIn = useCallback(
         async (signInData: { account: string, password: string }) => {
@@ -31,15 +25,29 @@ export const SignInScreen = () => {
         },
         [],
     )
+    const renderSignInModal = useMemo(() => {
+        if (uiState.isShowModal) {
+            return <LoginModal
+                mode={uiState.signInMode}
+                changeSignInMode={(changedMode: SignInMode) => {
+                    uiLogic(changeSignInMode(changedMode));
+                }}
+                handleSignIn={(props) => {
+                    handleSignIn(props);
+                }}
+            />
+        } else {
+            return null;
+        }
 
+    }, [uiState.isShowModal, uiState.signInMode])
     return (
         <View style={styles.container}>
             <StatusBar backgroundColor={colors.white} />
-
             <TouchableOpacity
                 onPress={() => {
                     // refLanguage.current.open();
-                    console.log(`hahahah: ${accountInputRef.current?.getValue()}`)
+                    // console.log(`hahahah: ${accountInputRef.current?.getValue()}`)
                 }}
                 style={style.btn_language}>
                 <Image
@@ -60,10 +68,8 @@ export const SignInScreen = () => {
                     /> */}
             </TouchableOpacity>
             <View style={{ height: 200 }}></View>
-            <AuthInput type='account' ref={accountInputRef}
-            />
-            <AuthInput type='password' ref={passwordInputRef} />
-            <Text>{userState.loading ? "Loadinggggg": "loaded"}</Text>
+
+            {/* <Text>{userState.loading ? "Loadinggggg" : "loaded"}</Text> */}
             <ScrollView
                 showsHorizontalScrollIndicator={false}
                 showsVerticalScrollIndicator={false}
@@ -80,12 +86,13 @@ export const SignInScreen = () => {
                         <TouchableOpacity
                             onPress={() => {
                                 // refInternet.current.open();
-                                console.log(`account ${accountInputRef.current?.getValue()}`);
-                                console.log(`pass ${passwordInputRef.current?.getValue()}`);
-                                handleSignIn({
-                                    account: accountInputRef.current?.getValue() ?? "",
-                                    password: passwordInputRef.current?.getValue() ?? ""
-                                })
+                                // console.log(`account ${accountInputRef.current?.getValue()}`);
+                                // console.log(`pass ${passwordInputRef.current?.getValue()}`);
+                                // handleSignIn({
+                                //     account: accountInputRef.current?.getValue() ?? "",
+                                //     password: passwordInputRef.current?.getValue() ?? ""
+                                // })
+                                uiLogic(showModal(SignInMode.INTERNET));
                             }}
                             style={{
                                 ...style.btn,
@@ -115,6 +122,7 @@ export const SignInScreen = () => {
                     <TouchableOpacity
                         onPress={() => {
                             // refLocal.current.open();
+                            uiLogic(showModal(SignInMode.LOCAL));
                         }}
                         style={{
                             backgroundColor: colors.solid.primary,
@@ -135,48 +143,14 @@ export const SignInScreen = () => {
                     />
                 </View>
             </ScrollView>
+            {renderSignInModal}
         </View>
     );
 }
-export interface AuthInputRef {
-    getValue: () => string
-}
-interface PropsAuthInput {
-    type: AuthInputType
-    // onChange?: (e: SelectChangeEvent<any>) => void,
-    // onDelete?: (event: any) => void
-}
-const AuthInput = forwardRef<AuthInputRef, PropsWithoutRef<PropsAuthInput>>((props, ref) => {
-    const { type } = props;
-    const [text, setText] = useState("");
-    useImperativeHandle(ref, () => ({
-        getValue: () => {
-            return text;
-        }
-    }))
-    console.log(`render auth input:  ${type}`)
-    return (
-        <View style={[{ marginTop: 40, flex: 1 }]}>
-            <TextInput
-                style={{
-                    height: 40,
-                    margin: 12,
-                    borderWidth: 1,
-                    padding: 10,
-                }}
-                secureTextEntry={(type === "password") ? true : false}
-                onChangeText={(changedText) => {
-                    setText(changedText);
-                }}
-                placeholder={type}
-                value={text}
-            />
-        </View>
-    );
-})
 
 
-const TranslateText = (props: { i18nKey: any, style: any }) => {
+
+export const TranslateText = (props: { i18nKey: any, style: any }) => {
     return <Text>{props.i18nKey}</Text>
 }
 const style = StyleSheet.create({
