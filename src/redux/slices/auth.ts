@@ -1,28 +1,31 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, isRejectedWithValue, PayloadAction } from "@reduxjs/toolkit";
 // import { AppState } from "../store";
 import { apiLogin } from "../../services/api/service";
 import { AppState } from "../store";
+import ApiError from "../../models/ApiError";
+import User from "../../models/User";
+import Config from "../../config";
+import Endpoint from "../../services/api/end_point";
 
 export interface UserState {
     user: User | null,
     loading: boolean,
-    error: string,
+    error: ApiError,
 }
 
 const initialState: UserState = {
     user: null,
     loading: false,
-    error: '',
+    error: new ApiError(),
 };
-function timeout(delay: number) {
-    return new Promise(res => setTimeout(res, delay));
-}
-export const requestLogin = createAsyncThunk('auth/login', async (props: { account: string, password: string }) => {
+export const requestLogin = createAsyncThunk(Endpoint.LOGIN, async (props: { account: string, password: string }, thunkApi) => {
     const { account, password } = props;
-    await timeout(2000);
-    // const res = await apiLogin(props);
-    // return res.data
-    return new User({ account, password })
+    const res = await apiLogin({ account, password });
+    if (res['message'] !== undefined) {
+        return thunkApi.rejectWithValue(res);
+    } else {
+        return res;
+    }
 })
 
 // export const requestChangePass = createAsyncThunk('auth/requestChangePass', async (props: {
@@ -40,9 +43,6 @@ const authReducer = createSlice({
     name: "authReducer",
     initialState,
     reducers: {
-        decrement: (state) => {
-            state.loading = true;
-        },
     },
     extraReducers: (builder) => {
         const actionList = [requestLogin];
@@ -57,9 +57,14 @@ const authReducer = createSlice({
             */
         builder.addCase(requestLogin.fulfilled, (state, action: PayloadAction<User>) => {
             console.log(`ha ha ha ${action.payload} ---- ${action.type}`);
-            state.loading = false;
             state.user = action.payload;
+            state.loading = false;
+
+        }).addCase(requestLogin.rejected, (state, action) => {
+            state.error = new ApiError(action.payload);
+            state.loading = false;
         })
+
         /**
          * change password
          */

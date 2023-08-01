@@ -1,10 +1,8 @@
-import axios, { AxiosRequestConfig, ResponseType } from "axios";
-
-export const PREFIX_API = process.env.REACT_APP_PREFIX_API;
-export const ENDPOINT_LOCAL = process.env.REACT_APP_ENDPOINT;
+import axios, { AxiosRequestConfig, HttpStatusCode, ResponseType } from "axios";
+import { REACT_APP_PREFIX_API, REACT_APP_ENDPOINT } from '@env';
 
 const axiosInstance = axios.create();
-axiosInstance.defaults.baseURL = `${ENDPOINT_LOCAL}/${PREFIX_API}`;
+axiosInstance.defaults.baseURL = `${REACT_APP_PREFIX_API}/${REACT_APP_ENDPOINT}`;
 axiosInstance.defaults.withCredentials = true;
 axiosInstance.defaults.timeout = 20000;
 axiosInstance.defaults.headers.common = { "Content-Type": "application/json" };
@@ -15,7 +13,7 @@ axiosInstance.interceptors.request.use(function (config) {
     config.headers.Authorization = token ? `Bearer ${token}` : '';
     return config;
 });
-export const ApiConfig = async (url: string, payload?: any, _method = "POST", apiPrefix = PREFIX_API, responseType?: ResponseType) => {
+export const ApiConfig = async (url: string, payload?: any, _method = "POST", responseType?: ResponseType) => {
     const method = _method.toLowerCase() as AxiosRequestConfig["method"];
     const config: AxiosRequestConfig = {
         url,
@@ -23,15 +21,19 @@ export const ApiConfig = async (url: string, payload?: any, _method = "POST", ap
         data: payload
     };
     if (responseType) config.responseType = responseType;
-    if (apiPrefix !== PREFIX_API) config.baseURL = `${ENDPOINT_LOCAL}/${apiPrefix}`;
-    //  if (method === 'post') {
-    //     return axiosInstance.post(`${url}`, payload, config)
-    //         .then(response => {
-    //             return response
-    //         })
-    //         .catch(error => error);
-    // }
-    return axiosInstance.request(config);
+    if (method === 'post') {
+        return axiosInstance.post(`${url}`, payload, config)
+            .then(response => {
+                console.log(response);
+                if (response.status === HttpStatusCode.Ok) {
+                    return response.data;
+                }
+                return response
+            })
+            .catch(error => error);
+    } else {
+        return axiosInstance.request(config);
+    }
 }
 
 export const ApiUploadFile = async (url: string, file: string | Blob, fieldName = "file") => {

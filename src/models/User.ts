@@ -10,3 +10,5 @@ class User {
         return `this user: ${this.account} ---- pass: ${this.password}`;
     }
 }
+
+export default User;

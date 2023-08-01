@@ -1,4 +1,4 @@
 export default class Endpoint {
-    static LOGIN = "/login";
+    static LOGIN = "/get_token";
     static CHANGEPASS = "/change-password";
 }

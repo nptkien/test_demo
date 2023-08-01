@@ -11,7 +11,7 @@ if (__DEV__) {
   require("./src/devtools/ReactotronConfig.ts")
 }
 import "./src/utils/ignoreWarning";
-import React from 'react';
+import React, { useEffect } from 'react';
 import Config from "./src/config";
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import * as storage from "./src/utils/storage";
@@ -21,8 +21,9 @@ import { useNavigationPersistence } from "./src/navigators/utilities";
 import { Provider } from "react-redux";
 import { store } from "./src/redux/store";
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
+import { API_BASE } from "@env";
 
-function App(): JSX.Element {
+const App = () => {
   const {
     initialNavigationState,
     onNavigationStateChange,

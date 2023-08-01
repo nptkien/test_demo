@@ -17,6 +17,7 @@ import Config from "../config"
 import { HomeNavigator, HomeTabParamList } from "./HomeTabNavigation" // @demo remove-current-line
 import { colors } from "../theme/colors"
 import { SignInScreen } from "../screens/auth/sign_in/SignIn"
+import { Routes } from "./routes"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -35,8 +36,6 @@ export type AppStackParamList = {
   Welcome: undefined
   Login: undefined // @demo remove-current-line
   Demo: NavigatorScreenParams<HomeTabParamList> // @demo remove-current-line
-  // 🔥 Your screens go here
-  // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
 
 /**
@@ -61,9 +60,6 @@ const AppStack = () => {
       {/* @demo remove-block-start */}
       {isAuthenticated ? (
         <>
-          {/* @demo remove-block-end */}
-          {/* <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} /> */}
-          {/* @demo remove-block-start */}
           <Stack.Screen name="Demo" component={HomeNavigator} />
         </>
       ) : (

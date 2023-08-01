@@ -3,3 +3,8 @@ import Endpoint from "./end_point";
 export const apiLogin = async (payload: { account: string, password: string }) => {
     return ApiConfig(Endpoint.LOGIN, payload)
 }
+
+export const apiRegister = async (payload: { account: string, password: string }) => {
+    return ApiConfig(Endpoint.LOGIN, payload)
+}
+

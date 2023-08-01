@@ -1,30 +1,53 @@
-import React, { PropsWithoutRef, forwardRef, useCallback, useImperativeHandle, useMemo, useReducer, useRef, useState } from 'react';
-import { Image, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { PropsWithoutRef, forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useReducer, useRef, useState } from 'react';
+import { Alert, AlertType, Image, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { colors } from '../../../theme';
 import images from '../../../theme/images';
 import styles from '../../../theme/styles';
 // import { authState, requestLogin } from '../../../redux/slices/counterSlice';
-import { unwrapResult } from '@reduxjs/toolkit';
+import { unwrapResult, } from '@reduxjs/toolkit';
 import { useAppDispatch, useAppSelector } from '../../../redux/hook';
 import { authState, requestLogin } from '../../../redux/slices/auth';
 import { signInReducer, initState, showModal, SignInMode, changeSignInMode } from './Logic';
 import { LoginModal } from '../components/LoginModal';
+import ApiError from '../../../models/ApiError';
+import { navigate } from '../../../navigators/utilities';
+import { Routes } from '../../../navigators/routes';
 export const SignInScreen = () => {
-    // const authReducer = useAppSelector(authState);
-    const userState = useAppSelector(authState);
+    const { user, loading, error } = useAppSelector(authState);
     const [uiState, uiLogic] = useReducer(signInReducer, initState);
     const dispatch = useAppDispatch();
     console.log("render SignInScreen");
     const handleSignIn = useCallback(
         async (signInData: { account: string, password: string }) => {
-            const actionResult = await dispatch(requestLogin({
+            dispatch(requestLogin({
                 account: signInData.account,
                 password: signInData.password
-            }))
-            const res = unwrapResult(actionResult);
+            })).then(unwrapResult).then(result => {
+                console.log("LOGIN OKKKK, DI DAU THI DI :D")
+            }).catch(_error => {
+                console.log(_error);
+                let error = new ApiError(_error);
+                showAlert(error, );
+            })
         },
         [],
     )
+    const showAlert = (error: ApiError, ) =>
+        Alert.alert(
+            'Sign In Error',
+            error.message,
+            [
+                {
+                    text: 'Cancel',
+                    onPress: () => Alert.alert('Cancel Pressed'),
+                    style: 'cancel',
+                },
+            ],
+            {
+                cancelable: true,
+                onDismiss: () => { }
+            },
+        );
     const renderSignInModal = useMemo(() => {
         if (uiState.isShowModal) {
             return <LoginModal
@@ -33,6 +56,8 @@ export const SignInScreen = () => {
                     uiLogic(changeSignInMode(changedMode));
                 }}
                 handleSignIn={(props) => {
+                    // TRUYEN LÊN MÀN HÌNH SIGN IN Ở ĐÂY
+
                     handleSignIn(props);
                 }}
             />
@@ -107,17 +132,6 @@ export const SignInScreen = () => {
                                 }}
                             />
                         </TouchableOpacity>
-                        {/* {showFingerLogin && (
-                                <TouchableOpacity
-                                    style={style.btn_finger}
-                                    onPress={openAuthenticationTouch}>
-                                    <FontAwesome5
-                                        name="fingerprint"
-                                        size={20}
-                                        color={colors.secondary}
-                                    />
-                                </TouchableOpacity>
-                            )} */}
                     </View>
                     <TouchableOpacity
                         onPress={() => {
