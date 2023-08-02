@@ -117,7 +117,6 @@ const AuthInput = forwardRef<AuthInputRef, PropsWithoutRef<PropsAuthInput>>((pro
         },
     }));
     const getInputLabelString = useCallback(() => {
-        console.log(`render auth input:  ${type}`)
         if (type == AuthInputType.PASSWORD) {
             return {
                 label: "pass word",
@@ -134,7 +133,9 @@ const AuthInput = forwardRef<AuthInputRef, PropsWithoutRef<PropsAuthInput>>((pro
                 placeHolder: "enter your email"
             }
         }
-    }, [type])
+    }, [type]);
+    console.log(`render auth input:  ${type}`)
+
     return (
         // <View style={[{ marginTop: 40, flex: 1 }]}>
         <Input

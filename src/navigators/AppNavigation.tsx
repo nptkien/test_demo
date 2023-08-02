@@ -11,13 +11,17 @@ import {
   NavigatorScreenParams, // @demo remove-current-line
 } from "@react-navigation/native"
 import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack"
-import React from "react"
+import React, { useMemo } from "react"
 import { useColorScheme } from "react-native"
 import Config from "../config"
 import { HomeNavigator, HomeTabParamList } from "./HomeTabNavigation" // @demo remove-current-line
 import { colors } from "../theme/colors"
 import { SignInScreen } from "../screens/auth/sign_in/SignIn"
 import { Routes } from "./routes"
+import { navigationRef } from "./utilities"
+import { useAppSelector } from "../redux/hook"
+import { authState } from "../redux/slices/auth"
+import { SplashScreen } from "../screens/splash/SplashScreen"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -35,7 +39,9 @@ import { Routes } from "./routes"
 export type AppStackParamList = {
   Welcome: undefined
   Login: undefined // @demo remove-current-line
-  Demo: NavigatorScreenParams<HomeTabParamList> // @demo remove-current-line
+  Demo: NavigatorScreenParams<HomeTabParamList>
+  Home: undefined
+  Splash: undefined
 }
 
 /**
@@ -51,23 +57,31 @@ export type AppStackScreenProps<T extends keyof AppStackParamList> = NativeStack
 
 const Stack = createNativeStackNavigator<AppStackParamList>()
 const AppStack = () => {
-  let isAuthenticated = false;
+  const { user } = useAppSelector(authState);
+  const getAppRouters = useMemo(() => {
+    if (user !== null) {
+      return (
+        <>
+          <Stack.Screen name={Routes.home as keyof AppStackParamList} component={HomeNavigator} />
+        </>
+      );
+    } else {
+      return (<>
+        <Stack.Screen name={Routes.home as keyof AppStackParamList} component={HomeNavigator} />
+        <Stack.Screen name={Routes.sign_in as keyof AppStackParamList} component={SignInScreen} />
+      </>);
+    }
+  }, [user])
   return (
     <Stack.Navigator
       screenOptions={{ headerShown: false, navigationBarColor: colors.background }}
-      initialRouteName={isAuthenticated ? "Welcome" : "Login"} // @demo remove-current-line
+      initialRouteName={Routes.splash_screen as keyof AppStackParamList} // @demo remove-current-line
     >
-      {/* @demo remove-block-start */}
-      {isAuthenticated ? (
-        <>
-          <Stack.Screen name="Demo" component={HomeNavigator} />
-        </>
-      ) : (
-        <>
-          <Stack.Screen name="Login" component={SignInScreen} />
-        </>
-      )}
-    </Stack.Navigator>
+      <>
+        <Stack.Screen name={Routes.splash_screen as keyof AppStackParamList} component={SplashScreen} />
+      </>
+      {getAppRouters}
+    </Stack.Navigator >
   )
 }
 
@@ -77,7 +91,7 @@ export interface NavigationProps
 export const AppNavigator = (props: any) => {
   return (
     <NavigationContainer
-      // ref={navigationRef}
+      ref={navigationRef}
       {...props}
     >
       <AppStack />

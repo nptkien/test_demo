@@ -21,7 +21,6 @@ import { useNavigationPersistence } from "./src/navigators/utilities";
 import { Provider } from "react-redux";
 import { store } from "./src/redux/store";
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
-import { API_BASE } from "@env";
 
 const App = () => {
   const {
@@ -39,7 +38,6 @@ const App = () => {
           />
         </ErrorBoundary>
       </Provider>
-
     </SafeAreaProvider>
   );
 }

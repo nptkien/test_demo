@@ -5,13 +5,17 @@ import { Text, TextStyle, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { colors, spacing, typography } from "../theme"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigation";
-import DemoTab1 from "../screens/home/demo_tab_1/DemoTab1"
-import DemoTab2 from "../screens/home/demo_tab_2/DemoTab2"
+import TableTab from "../screens/home/table_tab/TableTab"
+import OrdersTab from "../screens/home/orders_tab/OrderTab"
+import { Routes } from "./routes"
+import InvoiceTab from "../screens/home/invoice_tab/InvoiceTab"
+import SettingTab from "../screens/home/setting_tab/SettingTab"
+import { Icon } from "react-native-vector-icons/Icon"
 export type HomeTabParamList = {
-    DemoCommunity: undefined
-    DemoShowroom: { queryIndex?: string; itemIndex?: string }
-    DemoDebug: undefined
-    DemoPodcastList: undefined
+    TableTab: undefined
+    OrderTab: { queryIndex?: string; itemIndex?: string }
+    SettingTab: undefined
+    InvoiceTab: undefined
 }
 
 /**
@@ -42,31 +46,55 @@ export function HomeNavigator() {
             }}
         >
             <HomeTab.Screen
-                name="DemoShowroom"
-                component={DemoTab1}
+                name={Routes.table_tab as keyof HomeTabParamList}
+                component={TableTab}
                 options={{
                     // tabBarLabel: translate("demoNavigator.componentsTab"),
-                    tabBarLabel: "Tab1",
+                    tabBarLabel: "Table",
                     tabBarIcon: ({ focused }) => (
-                        <Text>Icon</Text>
+                        <></>
                         // <Icon icon="components" color={(focused && colors.tint) ? colors.tint : undefined} size={30} />
                     ),
                 }}
             />
 
             <HomeTab.Screen
-                name="DemoCommunity"
-                component={DemoTab2}
+                name={Routes.order_tab as keyof HomeTabParamList}
+                component={OrdersTab}
                 options={{
-                    tabBarLabel: "Tab2",
+                    tabBarLabel: "Orders",
                     tabBarIcon: ({ focused }) => (
-                        <Text>Icon</Text>
+                        <></>
 
                         // <Icon icon="community" color={(focused && colors.tint) ? colors.tint : undefined} size={30} />
                     ),
                 }}
             />
 
+            <HomeTab.Screen
+                name={Routes.invoice_tab as keyof HomeTabParamList}
+                component={InvoiceTab}
+                options={{
+                    tabBarLabel: "Invoice",
+                    tabBarIcon: ({ focused }) => (
+                        <></>
+                        // <Icon name="community" color={(focused && colors.tint) ? colors.tint : undefined} size={30} />
+                    ),
+                }}
+            />
+
+            <HomeTab.Screen
+                name={Routes.setting_tab as keyof HomeTabParamList}
+                component={SettingTab}
+                options={{
+                    tabBarLabel: "Setting",
+                    tabBarIcon: ({ focused }) => (
+                        <></>
+
+                        // <Icon icon="community" color={(focused && colors.tint) ? colors.tint : undefined} size={30} />
+                    ),
+                }}
+            />
 
         </HomeTab.Navigator>
     )

@@ -12,6 +12,7 @@ import { LoginModal } from '../components/LoginModal';
 import ApiError from '../../../models/ApiError';
 import { navigate } from '../../../navigators/utilities';
 import { Routes } from '../../../navigators/routes';
+import { AppStackParamList } from '../../../navigators/AppNavigation';
 export const SignInScreen = () => {
     const { user, loading, error } = useAppSelector(authState);
     const [uiState, uiLogic] = useReducer(signInReducer, initState);
@@ -27,12 +28,16 @@ export const SignInScreen = () => {
             }).catch(_error => {
                 console.log(_error);
                 let error = new ApiError(_error);
-                showAlert(error, );
+                showAlert(error,);
+            }).finally(() => {
+                console.log("routersss");
+                navigate({ name: "Home", key: Routes.home })
             })
+
         },
         [],
     )
-    const showAlert = (error: ApiError, ) =>
+    const showAlert = (error: ApiError,) =>
         Alert.alert(
             'Sign In Error',
             error.message,
@@ -57,7 +62,7 @@ export const SignInScreen = () => {
                 }}
                 handleSignIn={(props) => {
                     // TRUYEN LÊN MÀN HÌNH SIGN IN Ở ĐÂY
-
+                    // navigate({ name: "Home", key: Routes.home })
                     handleSignIn(props);
                 }}
             />
@@ -110,13 +115,6 @@ export const SignInScreen = () => {
                     <View style={[styles.row_between, { width: '100%' }]}>
                         <TouchableOpacity
                             onPress={() => {
-                                // refInternet.current.open();
-                                // console.log(`account ${accountInputRef.current?.getValue()}`);
-                                // console.log(`pass ${passwordInputRef.current?.getValue()}`);
-                                // handleSignIn({
-                                //     account: accountInputRef.current?.getValue() ?? "",
-                                //     password: passwordInputRef.current?.getValue() ?? ""
-                                // })
                                 uiLogic(showModal(SignInMode.INTERNET));
                             }}
                             style={{

@@ -6,7 +6,7 @@ import ApiError from "../../models/ApiError";
 import User from "../../models/User";
 import Config from "../../config";
 import Endpoint from "../../services/api/end_point";
-
+import * as LocalStorage from '../../utils/storage';
 export interface UserState {
     user: User | null,
     loading: boolean,
@@ -18,12 +18,31 @@ const initialState: UserState = {
     loading: false,
     error: new ApiError(),
 };
+const saveUserToStorage = async (user: User) => {
+    try {
+        // Chuyển đổi đối tượng User thành chuỗi JSON
+        const jsonUser = JSON.stringify(user);
+
+        // Lưu chuỗi JSON vào Local Storage
+        await LocalStorage.save('user', jsonUser);
+        console.log('Đã lưu instance của User vào Local Storage.');
+    } catch (error) {
+        console.error('Lỗi khi lưu instance của User vào Local Storage:', error);
+    }
+};
+
 export const requestLogin = createAsyncThunk(Endpoint.LOGIN, async (props: { account: string, password: string }, thunkApi) => {
     const { account, password } = props;
     const res = await apiLogin({ account, password });
     if (res['message'] !== undefined) {
         return thunkApi.rejectWithValue(res);
     } else {
+        // saveUserToStorage(res)
+        if(res.data.token) {
+            LocalStorage.save("token",res.data.token);
+            saveUserToStorage(props);
+        }
+        console.log(`ressssss ${res.data.token}`)
         return res;
     }
 })
