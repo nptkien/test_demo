@@ -18,6 +18,19 @@ const initialState: UserState = {
     loading: false,
     error: new ApiError(),
 };
+export const expriedToken = createAsyncThunk("ExpriedToken", async () => {
+    try {
+        // Lưu chuỗi JSON vào Local Storage
+        await LocalStorage.remove('x');
+        await LocalStorage.remove('y');
+        // await LocalStorage.remove('user');
+        // await LocalStorage.remove('token');
+        console.log('Đã xoa instance của User vào Local Storage.');
+    } catch (error) {
+        console.error('Lỗi khi lưu instance của User vào Local Storage:', error);
+    }
+})
+
 const saveUserToStorage = async (user: User) => {
     try {
         // Chuyển đổi đối tượng User thành chuỗi JSON
@@ -38,8 +51,8 @@ export const requestLogin = createAsyncThunk(Endpoint.LOGIN, async (props: { acc
         return thunkApi.rejectWithValue(res);
     } else {
         // saveUserToStorage(res)
-        if(res.data.token) {
-            LocalStorage.save("token",res.data.token);
+        if (res.data.token) {
+            LocalStorage.save("token", res.data.token);
             saveUserToStorage(props);
         }
         console.log(`ressssss ${res.data.token}`)
@@ -62,6 +75,15 @@ const authReducer = createSlice({
     name: "authReducer",
     initialState,
     reducers: {
+        restoreUserSession: {
+            reducer: (state, action: PayloadAction<User>) => {
+                state.user = action.payload
+            },
+            prepare: (user: User) => {
+                return { payload: user }
+            }
+        },
+
     },
     extraReducers: (builder) => {
         const actionList = [requestLogin];
@@ -83,7 +105,9 @@ const authReducer = createSlice({
             state.error = new ApiError(action.payload);
             state.loading = false;
         })
-
+        builder.addCase(expriedToken.fulfilled, (state, action) => {
+            state.user = null;
+        })
         /**
          * change password
          */
@@ -100,6 +124,6 @@ const authReducer = createSlice({
 
     }
 });
-
+export const { restoreUserSession } = authReducer.actions
 export const authState = (state: AppState) => state.authState as UserState;
 export default authReducer.reducer;

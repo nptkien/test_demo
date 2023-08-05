@@ -7,5 +7,6 @@ export const Routes = {
     setting_tab: 'SettingTab',
     order_tab: 'OrderTab',
     invoice_tab: 'InvoiceTab',
-    splash_screen: 'Splash'
+    splash_screen: 'Splash',
+    product_list: "ProductList"
 }

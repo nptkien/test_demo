@@ -1,8 +1,11 @@
 import axios, { AxiosRequestConfig, HttpStatusCode, ResponseType } from "axios";
 import { REACT_APP_PREFIX_API, REACT_APP_ENDPOINT } from '@env';
 import * as LocalStorage from '../../utils/storage';
+import ApiError from "../../models/ApiError";
 const axiosInstance = axios.create();
 axiosInstance.defaults.baseURL = `${REACT_APP_PREFIX_API}/${REACT_APP_ENDPOINT}`;
+// axiosInstance.defaults.baseURL = `https://jsonplaceholder.typicode.com/`;
+
 axiosInstance.defaults.withCredentials = true;
 axiosInstance.defaults.timeout = 20000;
 axiosInstance.defaults.headers.common = { "Content-Type": "application/json" };
@@ -20,7 +23,8 @@ const getTokenFromStorage = async () => {
 // Hàm để thêm trường Authorization vào header của Axios
 const addAuthorizationHeader = async () => {
     const token = await getTokenFromStorage();
-    console.log("zoooooooooooo" +token);
+    console.log(token);
+
     if (token) {
         // axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         axiosInstance.interceptors.request.use(function (config) {
@@ -29,14 +33,17 @@ const addAuthorizationHeader = async () => {
         });
     }
 };
-addAuthorizationHeader();
-export const ApiConfig = async (url: string, payload?: any, _method = "POST", responseType?: ResponseType) => {
+// addAuthorizationHeader();
+export const ApiConfig = async (url: string, payload?: any, _method = "POST", responseType?: ResponseType, params?: any) => {
     const method = _method.toLowerCase() as AxiosRequestConfig["method"];
     const config: AxiosRequestConfig = {
         url,
         method,
-        data: payload
+        data: payload,
+        params,
     };
+
+
     if (responseType) config.responseType = responseType;
     if (method === 'post') {
         return axiosInstance.post(`${url}`, payload, config)
@@ -48,6 +55,29 @@ export const ApiConfig = async (url: string, payload?: any, _method = "POST", re
                 return response
             })
             .catch(error => error);
+    } else if (method === "get") {
+
+        await addAuthorizationHeader();
+        console.log(params);
+
+        return axiosInstance.get(`${url}`,
+            {
+                params,
+            }).then(response => {
+                console.log(axiosInstance.getUri());
+
+                if (response.status === HttpStatusCode.Ok) {
+                    return response.data;
+                } else if (response.status === HttpStatusCode.Forbidden) {
+                    return new ApiError({ status: HttpStatusCode.Forbidden, message: "Forbidden" })
+                }
+                return response.data
+            })
+            .catch(error => {
+                console.log("oi zoi oi");
+
+                return error
+            });
     } else {
         return axiosInstance.request(config);
     }

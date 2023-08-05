@@ -5,6 +5,7 @@
  * and a "main" flow which the user will use once logged in.
  */
 import {
+  CompositeScreenProps,
   DarkTheme,
   DefaultTheme,
   NavigationContainer,
@@ -22,6 +23,7 @@ import { navigationRef } from "./utilities"
 import { useAppSelector } from "../redux/hook"
 import { authState } from "../redux/slices/auth"
 import { SplashScreen } from "../screens/splash/SplashScreen"
+import { ProductListScreen } from "../screens/product_list/ProductList"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -42,7 +44,10 @@ export type AppStackParamList = {
   Demo: NavigatorScreenParams<HomeTabParamList>
   Home: undefined
   Splash: undefined
+  ProductList: { categoryId: string }
 }
+
+
 
 /**
  * This is a list of all the route names that will exit the app if the back button
@@ -59,10 +64,12 @@ const Stack = createNativeStackNavigator<AppStackParamList>()
 const AppStack = () => {
   const { user } = useAppSelector(authState);
   const getAppRouters = useMemo(() => {
+
     if (user !== null) {
       return (
         <>
-          <Stack.Screen name={Routes.home as keyof AppStackParamList} component={HomeNavigator} />
+          <Stack.Screen name={"Home"} component={HomeNavigator} />
+          <Stack.Screen name={"ProductList"} component={ProductListScreen} />
         </>
       );
     } else {
