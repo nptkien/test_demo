@@ -105,6 +105,7 @@ android {
 
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation("com.facebook.react:react-android")
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
@@ -118,6 +119,9 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+    implementation files('libs/SDK4BaseBinderV2.2.0.jar')
+    implementation files('libs/SDK4EmvBinderV2.2.0.jar')
+    implementation files('libs/SDK4KeyManagerBinderV2.2.0.jar')
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
