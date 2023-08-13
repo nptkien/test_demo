@@ -6,7 +6,7 @@ import styles from '../../../theme/styles';
 // import { authState, requestLogin } from '../../../redux/slices/counterSlice';
 import { unwrapResult, } from '@reduxjs/toolkit';
 import { useAppDispatch, useAppSelector } from '../../../redux/hook';
-import { authState, requestLogin } from '../../../redux/slices/auth';
+import { usersState, requestLoadUserByLimit } from '../../../redux/slices/users';
 import { signInReducer, initState, showModal, SignInMode, changeSignInMode } from './Logic';
 import { LoginModal } from '../components/LoginModal';
 import ApiError from '../../../models/ApiError';
@@ -14,13 +14,13 @@ import { navigate } from '../../../navigators/utilities';
 import { Routes } from '../../../navigators/routes';
 import { AppStackParamList } from '../../../navigators/AppNavigation';
 export const SignInScreen = () => {
-    const { user, loading, error } = useAppSelector(authState);
+    const { users: user, loading, error } = useAppSelector(usersState);
     const [uiState, uiLogic] = useReducer(signInReducer, initState);
     const dispatch = useAppDispatch();
     console.log("render SignInScreen");
     const handleSignIn = useCallback(
         async (signInData: { account: string, password: string }) => {
-            dispatch(requestLogin({
+            dispatch(requestLoadUserByLimit({
                 account: signInData.account,
                 password: signInData.password
             })).then(unwrapResult).then(result => {

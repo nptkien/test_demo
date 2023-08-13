@@ -5,7 +5,7 @@ import { Text, TextStyle, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { colors, spacing, typography } from "../theme"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigation";
-import TableTab from "../screens/home/table_tab/TableTab"
+import UserListTab from "../screens/home/table_tab/TableTab"
 import OrdersTab from "../screens/home/orders_tab/OrderTab"
 import { Routes } from "./routes"
 import InvoiceTab from "../screens/home/invoice_tab/InvoiceTab"
@@ -47,7 +47,7 @@ export function HomeNavigator() {
         >
             <HomeTab.Screen
                 name={Routes.table_tab as keyof HomeTabParamList}
-                component={TableTab}
+                component={UserListTab}
                 options={{
                     // tabBarLabel: translate("demoNavigator.componentsTab"),
                     tabBarLabel: "Table",

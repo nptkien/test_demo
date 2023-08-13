@@ -21,9 +21,8 @@ import { SignInScreen } from "../screens/auth/sign_in/SignIn"
 import { Routes } from "./routes"
 import { navigationRef } from "./utilities"
 import { useAppSelector } from "../redux/hook"
-import { authState } from "../redux/slices/auth"
+import { usersState } from "../redux/slices/users"
 import { SplashScreen } from "../screens/splash/SplashScreen"
-import { ProductListScreen } from "../screens/product_list/ProductList"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -62,22 +61,12 @@ export type AppStackScreenProps<T extends keyof AppStackParamList> = NativeStack
 
 const Stack = createNativeStackNavigator<AppStackParamList>()
 const AppStack = () => {
-  const { user } = useAppSelector(authState);
+  const { users: user } = useAppSelector(usersState);
   const getAppRouters = useMemo(() => {
+    return <>
+      <Stack.Screen name={"Home"} component={HomeNavigator} />
+    </>
 
-    if (user !== null) {
-      return (
-        <>
-          <Stack.Screen name={"Home"} component={HomeNavigator} />
-          <Stack.Screen name={"ProductList"} component={ProductListScreen} />
-        </>
-      );
-    } else {
-      return (<>
-        <Stack.Screen name={Routes.home as keyof AppStackParamList} component={HomeNavigator} />
-        <Stack.Screen name={Routes.sign_in as keyof AppStackParamList} component={SignInScreen} />
-      </>);
-    }
   }, [user])
   return (
     <Stack.Navigator
@@ -85,9 +74,10 @@ const AppStack = () => {
       initialRouteName={Routes.splash_screen as keyof AppStackParamList} // @demo remove-current-line
     >
       <>
-        <Stack.Screen name={Routes.splash_screen as keyof AppStackParamList} component={SplashScreen} />
+        {/* <Stack.Screen name={Routes.splash_screen as keyof AppStackParamList} component={SplashScreen} /> */}
+        {getAppRouters}
       </>
-      {getAppRouters}
+
     </Stack.Navigator >
   )
 }

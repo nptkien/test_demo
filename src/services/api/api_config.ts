@@ -3,8 +3,8 @@ import { REACT_APP_PREFIX_API, REACT_APP_ENDPOINT } from '@env';
 import * as LocalStorage from '../../utils/storage';
 import ApiError from "../../models/ApiError";
 const axiosInstance = axios.create();
-axiosInstance.defaults.baseURL = `${REACT_APP_PREFIX_API}/${REACT_APP_ENDPOINT}`;
-// axiosInstance.defaults.baseURL = `https://jsonplaceholder.typicode.com/`;
+// axiosInstance.defaults.baseURL = `${REACT_APP_PREFIX_API}/`;
+axiosInstance.defaults.baseURL = ` https://random-data-api.com/api/users/`;
 
 axiosInstance.defaults.withCredentials = true;
 axiosInstance.defaults.timeout = 20000;
@@ -56,14 +56,29 @@ export const ApiConfig = async (url: string, payload?: any, _method = "POST", re
             })
             .catch(error => error);
     } else if (method === "get") {
+        console.log("VAOOOOOOOOO", REACT_APP_PREFIX_API);
+        console.log(url);
+        console.log(axiosInstance.getUri());
 
-        await addAuthorizationHeader();
         console.log(params);
+        return axios({
+            method: "GET",
+            // params: {"size": 10},
+            baseURL: "https://random-data-api.com/api/users/",
+            url: "random_user?size=10"
+        }).then(response => {
+            return response.data;
 
+        }).catch(err => {
+            console.log("loi roi", {...err});
+
+        })
         return axiosInstance.get(`${url}`,
             {
                 params,
             }).then(response => {
+                console.log("vai");
+
                 console.log(axiosInstance.getUri());
 
                 if (response.status === HttpStatusCode.Ok) {
@@ -74,7 +89,7 @@ export const ApiConfig = async (url: string, payload?: any, _method = "POST", re
                 return response.data
             })
             .catch(error => {
-                console.log("oi zoi oi");
+                console.log("oi zoi oi", {...error});
 
                 return error
             });

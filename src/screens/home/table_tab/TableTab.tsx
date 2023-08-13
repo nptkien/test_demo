@@ -1,55 +1,86 @@
-import { HostComponent, Text, TouchableOpacity, View, requireNativeComponent, NativeModules, SafeAreaView } from 'react-native'
-import { Component, useCallback, useEffect } from 'react'
-import styles from '../../../theme/styles'
-import { navigate } from '../../../navigators/utilities';
-import { Routes } from '../../../navigators/routes';
-import { AppStackParamList } from '../../../navigators/AppNavigation';
 import * as React from 'react';
-const TableTab = () => {
+import { useEffect } from 'react';
+import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useAppDispatch, useAppSelector } from '../../../redux/hook';
+import { usersState, requestLoadUserBySize } from '../../../redux/slices/users';
+import styles from '../../../theme/styles';
+import { initState, signInReducer } from '../../auth/sign_in/Logic';
+import User from '../../../models/User';
+// import FlipCard, { RotateAxis } from "react-native-flip"
+
+const UserListTab = () => {
+    const dispatch = useAppDispatch()
+    const { users, loading, error, size } = useAppSelector(usersState);
+    const [uiState, uiLogic] = React.useReducer(signInReducer, initState);
     useEffect(() => {
+        const loadUsers = () => {
+            dispatch(requestLoadUserBySize({ size: 10 }))
+        }
+        loadUsers();
         return () => {
         }
     }, [])
-    const goToProductList = useCallback(() => {
-        console.log("goToProductList");
-        navigate({ name: "ProductList", key: Routes.product_list, params: { categoryId: "37" } })
-    }, []);
-    const callNativeModule = () => {
-        const SmartPrinter = NativeModules.Printer;
-        console.log("callNativeModule", { NativeModules, SmartPrinter });
-        console.log("callNativeModule", SmartPrinter);
-
-        try {
-            var xxxxx = SmartPrinter.demoHandlePrintEvent;
-            xxxxx("vkl");
-            console.log("==========");
-
-        } catch (error) {
-            console.log("error");
-
-        }
-        console.log("==========");
-
-
-    }
-    console.log("TableTab");
-    return (
-        <View style={{ ...styles.container, ...styles.column_center }}>
-            <Text>TableTab</Text>
-            <TouchableOpacity onPress={goToProductList}>
-                <View style={{ paddingHorizontal: 20, paddingVertical: 14, ...styles.column_center, backgroundColor: "red" }}>
-                    <Text style={{ color: "white" }}>Go to Product List</Text>
-                </View>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={callNativeModule}>
-                <View style={{ paddingHorizontal: 20, paddingVertical: 14, ...styles.column_center, backgroundColor: "red", marginTop: 30 }}>
-                    <Text style={{ color: "white" }}>Demo Native</Text>
-                </View>
-            </TouchableOpacity>
-        </View>
-
+    const loadUsersMore = React.useCallback(
+        () => {
+            return dispatch(requestLoadUserBySize({ size: size + 10 }));
+        },
+        [size],
     )
+
+    const renderItem = ({ item }: { item: User }) => {
+        return (
+            <View style={comstyles.item}>
+                <Text>{item.last_name}</Text>
+                <Text>Price: {item.first_name}</Text>
+            </View>
+        );
+    };
+    const renderBody = React.useMemo(() => {
+        if (loading) {
+            return <View style={{ ...styles.container, ...comstyles.listContainer }}>
+                <ActivityIndicator size="large" color="red" />
+            </View>
+        } else {
+            return (
+                <View style={{ ...styles.container }}>
+                    <FlatList
+                        data={users}
+                        renderItem={renderItem}
+                        keyExtractor={(item: User) => item.id.toString()}
+                        contentContainerStyle={comstyles.listContainer}
+                    />
+                    {loading && <ActivityIndicator size="small" color="red" />}
+                    <TouchableOpacity onPress={() => {
+                        loadUsersMore();
+                    }}>
+                        load More
+                    </TouchableOpacity>
+                </View>
+            )
+        }
+    }, [loading])
+    return (
+        <View style={styles.container}>
+            {renderBody}
+        </View>
+    );
 
 }
 
-export default TableTab
+
+const comstyles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 16,
+    },
+    listContainer: {
+        paddingBottom: 16,
+    },
+    item: {
+        backgroundColor: '#f9c2ff',
+        padding: 20,
+        marginVertical: 8,
+        height: 250
+    },
+});
+export default UserListTab

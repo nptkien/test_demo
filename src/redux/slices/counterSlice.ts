@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { requestLogin } from './auth'
+import { requestLoadUserByLimit } from './users'
 
 export interface CounterState {
     value: number

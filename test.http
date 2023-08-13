@@ -32,7 +32,7 @@ content-type: application/json
 }
 ###
 
-GET   https://id.nxpos.vn/api/mobile-pos/v1/products?category_id=37 HTTP/1.1
+GET  https://random-data-api.com/api/users/random_user?size=10 HTTP/1.1
 content-type: application/json
 Authorization:
 
